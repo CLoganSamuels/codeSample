@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+
+<style>
+    body{background: tan}
+    tab { padding-left: 4em; }
+    tab2 { padding-left: 6em; }
+    input[type="text"].plain {  display: block; padding: 0; }
+    table, th, td { border: 1px solid black; }
+    div{
+        width: 800px;
+        word-break: keep-all;
+        border-right: thin solid grey;
+    }
+    span.dropt {border-bottom: thin dotted;}
+        span.dropt:hover {text-decoration: none; background: #ffffff; z-index: 6; }
+        span.dropt span {position: absolute; left: -9999px;
+        margin: 20px 0 0 0px; padding: 3px 3px 3px 3px;
+        border-style:solid; border-color:black; border-width:1px;  width:300px;}
+        span.dropt:hover span {left: 2%; background: #ffffff;} 
+        span.dropt span {position: absolute; left: -9999px;
+        margin: 4px 0 0 0px; padding: 3px 3px 3px 3px; 
+        border-style:solid; border-color:black; border-width:1px;}
+        span.dropt:hover span {margin: 20px 0 0 150px; background: #ffffff; z-index:6;}
+</style>
+
+<div>
+<h2>Stoichiometry Calculator</h2>
+
+<form action="{% url 'output' %}" method="post">
+	<p>Example input: {{ example }}<br>
+	Enter an unbalanced chemical equation:<br>
+	<input type=text name="equation" size="73" id=4><br>
+	<input type="submit" name="inBal" value=Submit>
+	{% csrf_token %}
+</form>
+</p>
+
+{{ balEquation }}
+{% if vals %}
+    <script type="text/javascript">
+        var molecules = [];
+        let molecule, name, w, co;
+        {% for m, v in vals.items %}
+            molecule = new Object;
+            molecule.name = "{{ m }}";
+            molecule.coeff = "{{ v.1 }}"
+            molecule.weight = parseFloat("{{ v.0 }}");
+            molecules.push(molecule);
+        {% endfor %}
+         
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/convert.js' %}?v=00005"></script>
+    <input type=checkbox onchange="update_measured()">
+    <span class="dropt"><Strong>Moles Measured</Strong>
+        <span>Mole to mole conversations are theoretical by default. 
+        (Mole values aren't affected by significant figures
+        unless converting from grams.) When Moles Measured 
+        is enabled, all values take significant figures into account.</span>
+    </span><br>
+    <input type=text onchange=update_sigs(this) 
+    value=5 style="width: 17px; text-align:right; background-color:tan">
+    <strong>Significant Digits</strong>
+{% endif %}
+
+<h3>Explanation</h3>
+
+<p> From <a href="https://en.wikipedia.org/wiki/Stoichiometry">Wikipedia</a>: 
+"Stoichiometry is the calculation of relative quantities of 
+reactants and products in chemical reactions. </p>
+
+<p> Stoichiometry is founded on the law of conservation of mass where the 
+total mass of the reactants equals the total mass of the products leading to 
+the insight that the relations among quantities of reactants and products 
+typically form a ratio of positive integers. This means that if the amounts 
+of the separate reactants are known, then the amount of the product can be 
+calculated. Conversely, if one reactant has a known quantity and the quantity 
+of product can be empirically determined, then the amount of the other 
+reactants can also be calculated." </p>
+
+<h3>Code and Math</h3>
+
+<p>If you've ever studied chemistry, you most likely balanced chemical equations 
+using the guess and check method. Though software can 
+also find solutions through trial and error, my program takes a different 
+approach. Let's look at an example.</p>
+
+<p><tab>C<sub>2</sub>H<sub>6</sub> + O<sub>2</sub> → CO<sub>2</sub> + H<sub>2</sub>O</p>
+
+<p> Balancing this chemical equation is simply a matter of finding the coefficient
+of each molecule. Let's use variables w, x, y, and z as our coefficients.
+
+<p><tab><strong>w</strong>C<sub>2</sub>H<sub>6</sub> + <strong>x</strong>O<sub>2</sub>
+ → <strong>y</strong>CO<sub>2</sub> + <strong>z</strong>H<sub>2</sub>O</p>
+
+<p>The number of oxygen atoms in the reactants must equal the number of oxygen
+atoms in the products. Therefore, we can create an equality based 
+on the number of oxygen atoms per molecule.</p>
+
+<p><tab>0w + 2x = 2y + 1z</p>
+
+<p>Now let's do the same for hydrogen and carbon to create a system of 
+equations.</p>
+
+<p><tab><strong>O:</strong> 0w + 2x = 2y + 1z<br>
+<tab><strong>C:</strong> 2w + 0x = 1y + 0z<br>
+<tab><strong>H:</strong> 6w + 0x = 0y + 2z</p>
+
+<p>The <a href="http://docs.sympy.org/dev/tutorial/matrices.html#nullspace"
+>nullspace</a> 
+function, imported from the python library SymPy, provides us with an simple way 
+to solve systems of uninomial equations. To use this function, we must first set 
+every equation equal to 0.</p>
+
+<p><tab><strong>O:</strong> 0w + 2x - 2y - 1z = 0<br>
+<tab><strong>C:</strong> 2w + 0x - 1y - 0z = 0<br>
+<tab><strong>H:</strong> 6w + 0x - 0y - 2z = 0</p>
+
+<p>These equations need to be represented by a matrix. In my code, this is
+accomplished by the function <a href="{%url 'main' %}">main</a>.</p>
+
+<p><tab>Matrix = [<br>
+<tab2>[0, 2, -2, -1],<br>
+<tab2>[2, 0, -1, -0],<br>
+<tab2>[6, 0, -0, -2]<br>
+<tab>]</p>
+             
+<p>Matrix.nullspace() returns a list of coefficients.</p>
+
+<p><tab>[1/3, 7/6, 2/3, 1]</p>
+
+<p>These values are calculated and converted to whole numbers in 
+<a href="{%url 'nullMath'%}">nullMath</a>.</p>
+
+<p><tab>[2, 7, 4, 6]</p>
+
+<p>The final output is returned using
+<a href="{url 'out'}">out</a>.</p>
+
+<p><tab>2C₂H₆ + 7O₂ → 4CO₂ + 6H₂O</p>
+</div>
+
+</html>

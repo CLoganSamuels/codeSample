@@ -1,0 +1,22 @@
+{% extends 'chem/base.html' %}
+
+{% block code %}
+<div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">out</span>(coEffs, reactants, products, moleWeights):
+    coEffDict <span style="color: #333333">=</span> {}
+    equation <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&quot;&quot;</span>
+    i <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+    subscript <span style="color: #333333">=</span> <span style="color: #007020">str</span><span style="color: #333333">.</span>maketrans(<span style="background-color: #fff0f0">&quot;0123456789&quot;</span>, <span style="background-color: #fff0f0">&quot;₀₁₂₃₄₅₆₇₈₉&quot;</span>)
+    <span style="color: #008800; font-weight: bold">for</span> reactant <span style="color: #000000; font-weight: bold">in</span> reactants:
+        coEffDict[reactant] <span style="color: #333333">=</span> coEffs[i]
+        <span style="color: #008800; font-weight: bold">if</span> coEffs[i] <span style="color: #333333">==</span> <span style="color: #0000DD; font-weight: bold">1</span>: coEffs[i] <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+        equation <span style="color: #333333">=</span> equation <span style="color: #333333">+</span> <span style="color: #007020">str</span>(coEffs[i]) <span style="color: #333333">+</span> reactant<span style="color: #333333">.</span>translate(subscript) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&#39; + &#39;</span>
+        i <span style="color: #333333">+=</span> <span style="color: #0000DD; font-weight: bold">1</span>
+    equation <span style="color: #333333">=</span> equation[:<span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">2</span>] <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot;→ &quot;</span>
+    <span style="color: #008800; font-weight: bold">for</span> product <span style="color: #000000; font-weight: bold">in</span> products:
+        coEffDict[product] <span style="color: #333333">=</span> coEffs[i]
+        <span style="color: #008800; font-weight: bold">if</span> coEffs[i] <span style="color: #333333">==</span> <span style="color: #0000DD; font-weight: bold">1</span>: coEffs[i] <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+        equation <span style="color: #333333">=</span> equation <span style="color: #333333">+</span> <span style="color: #007020">str</span>(coEffs[i]) <span style="color: #333333">+</span> product<span style="color: #333333">.</span>translate(subscript) <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&#39; + &#39;</span>
+        i <span style="color: #333333">+=</span> <span style="color: #0000DD; font-weight: bold">1</span>
+    <span style="color: #008800; font-weight: bold">return</span>((equation[:<span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">2</span>], moleWeights, coEffDict))
+</pre></div>
+{% endblock %}

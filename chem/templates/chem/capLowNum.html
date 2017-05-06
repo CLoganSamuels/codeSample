@@ -1,0 +1,9 @@
+{% extends 'chem/base.html' %}
+
+{% block code %}
+<div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">capLowNum</span>(char):
+    <span style="color: #008800; font-weight: bold">if</span> <span style="color: #007020">ord</span>(char) <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">96</span>: <span style="color: #008800; font-weight: bold">return</span>(<span style="background-color: #fff0f0">&#39;low&#39;</span>)
+    <span style="color: #008800; font-weight: bold">if</span> <span style="color: #007020">ord</span>(char) <span style="color: #333333">&lt;</span> <span style="color: #0000DD; font-weight: bold">58</span>: <span style="color: #008800; font-weight: bold">return</span>(<span style="background-color: #fff0f0">&#39;digit&#39;</span>)
+    <span style="color: #008800; font-weight: bold">return</span>(<span style="background-color: #fff0f0">&#39;up&#39;</span>)
+</pre></div>
+{% endblock %}

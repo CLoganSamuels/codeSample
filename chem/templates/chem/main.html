@@ -1,0 +1,65 @@
+{% extends 'chem/base.html' %}
+
+{% block code %}
+<div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">main</span>(equation):
+    <span style="color: #888888">#takes input and puts data into a 2d array</span>
+
+    equation <span style="color: #333333">=</span> equation<span style="color: #333333">.</span>replace(<span style="background-color: #fff0f0">&#39;--&gt;&#39;</span>, <span style="background-color: #fff0f0">&#39;=&#39;</span>)<span style="color: #333333">.</span>replace(<span style="background-color: #fff0f0">&#39;→&#39;</span>, <span style="background-color: #fff0f0">&#39;=&#39;</span>)<span style="color: #333333">.</span>replace(<span style="background-color: #fff0f0">&#39; &#39;</span>,<span style="background-color: #fff0f0">&#39;&#39;</span>)
+    subscript <span style="color: #333333">=</span> <span style="color: #007020">str</span><span style="color: #333333">.</span>maketrans(<span style="background-color: #fff0f0">&quot;₀₁₂₃₄₅₆₇₈₉&quot;</span>, <span style="background-color: #fff0f0">&quot;0123456789&quot;</span>)
+    equation <span style="color: #333333">=</span> equation<span style="color: #333333">.</span>translate(subscript)
+    <span style="color: #888888">#changes subscripts into normal ints</span>
+
+    react, prod <span style="color: #333333">=</span> equation<span style="color: #333333">.</span>split(<span style="background-color: #fff0f0">&#39;=&#39;</span>) 
+    <span style="color: #888888">#splits the equation into product and reacant sides</span>
+    reactants <span style="color: #333333">=</span> react<span style="color: #333333">.</span>split(<span style="background-color: #fff0f0">&#39;+&#39;</span>)
+    <span style="color: #888888">#splits the reactant side into a list of molecules</span>
+    products <span style="color: #333333">=</span> prod<span style="color: #333333">.</span>split(<span style="background-color: #fff0f0">&#39;+&#39;</span>) 
+    <span style="color: #888888">#splits product side into a list of molecules</span>
+    
+    reactants <span style="color: #333333">=</span> [<a href="{%url 'removeCoefficients'%}">removeCoefficients</a>(r) <span style="color: #008800; font-weight: bold">for</span> r <span style="color: #000000; font-weight: bold">in</span> reactants]
+    products <span style="color: #333333">=</span> [<a href="{%url 'removeCoefficients'%}">removeCoefficients</a>(p) <span style="color: #008800; font-weight: bold">for</span> p <span style="color: #000000; font-weight: bold">in</span> products]
+    
+    moleWeights <span style="color: #333333">=</span> {}
+    atomList <span style="color: #333333">=</span> []
+    zeros <span style="color: #333333">=</span> [] <span style="color: #888888">#populated by zeros to fill in missing values in the final matrix</span>
+    matrix <span style="color: #333333">=</span> [] 
+    i <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #888888">#the total number of molecules counted so far</span>
+    
+    <span style="color: #008800; font-weight: bold">for</span> reactant <span style="color: #000000; font-weight: bold">in</span> reactants: 
+    <span style="color: #888888">#add reacant atoms to matrix as positive integers     </span>
+        reactant <span style="color: #333333">=</span> <a href="{%url 'moleculeSplit'%}">moleculeSplit</a>(reactant, <span style="color: #0000DD; font-weight: bold">1</span>, moleWeights) 
+        <span style="color: #888888">#splits each molecule into a dictionary of atoms</span>
+        <span style="color: #888888">#key = atomic symbol, value = the quantity of the atom per molecule        </span>
+        <span style="color: #008800; font-weight: bold">for</span> atom <span style="color: #000000; font-weight: bold">in</span> reactant:
+            <span style="color: #008800; font-weight: bold">if</span> atom <span style="color: #000000; font-weight: bold">in</span> atomList:
+                aIndex <span style="color: #333333">=</span> atomList<span style="color: #333333">.</span>index(atom)
+                <a href="{%url 'populate'%}">populate</a>(matrix[aIndex],i,reactant[atom])
+            <span style="color: #008800; font-weight: bold">else</span>:
+                atomList<span style="color: #333333">.</span>append(atom)
+                matrix<span style="color: #333333">.</span>append(zeros <span style="color: #333333">+</span> [reactant[atom]])
+        zeros<span style="color: #333333">.</span>append(<span style="color: #0000DD; font-weight: bold">0</span>)
+        i <span style="color: #333333">+=</span> <span style="color: #0000DD; font-weight: bold">1</span>
+
+    <span style="color: #008800; font-weight: bold">for</span> product <span style="color: #000000; font-weight: bold">in</span> products:
+    <span style="color: #888888">#add product atoms to matrix as negative integers</span>
+        product <span style="color: #333333">=</span> <a href="{%url 'moleculeSplit'%}">moleculeSplit</a>(product, <span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>, moleWeights)
+        <span style="color: #008800; font-weight: bold">for</span> atom <span style="color: #000000; font-weight: bold">in</span> product:
+            <span style="color: #008800; font-weight: bold">if</span> atom <span style="color: #000000; font-weight: bold">in</span> atomList:
+                aIndex <span style="color: #333333">=</span> atomList<span style="color: #333333">.</span>index(atom)
+                <a href="{%url 'populate'%}">populate</a>(matrix[aIndex],i,product[atom])
+            <span style="color: #008800; font-weight: bold">else</span>:
+                atomList<span style="color: #333333">.</span>append(atom)
+                matrix<span style="color: #333333">.</span>append(zeros <span style="color: #333333">+</span> [product[atom]])
+        zeros<span style="color: #333333">.</span>append(<span style="color: #0000DD; font-weight: bold">0</span>)
+        i <span style="color: #333333">+=</span> <span style="color: #0000DD; font-weight: bold">1</span>
+
+    <span style="color: #008800; font-weight: bold">for</span> x <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #007020">len</span>(matrix)):
+        <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">len</span>(matrix[x]) <span style="color: #333333">&lt;</span> i:
+            matrix[x]<span style="color: #333333">.</span>append(<span style="color: #0000DD; font-weight: bold">0</span>)
+            <span style="color: #888888">#gives rows uniform length</span>
+            
+    <span style="color: #008800; font-weight: bold">return</span>(<a href="{%url 'out'%}">out</a>(<a href="{%url 'nullMath'%}">nullMath</a>(matrix, i), reactants, products, moleWeights))
+</pre></div>
+{% endblock %}
+
+

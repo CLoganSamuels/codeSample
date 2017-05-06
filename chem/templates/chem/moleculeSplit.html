@@ -1,0 +1,34 @@
+{% extends 'chem/base.html' %}
+
+{% block code%}
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">moleculeSplit</span>(mole, sign, moleWeights): 
+    <span style="color: #888888">#splits molecules into atoms</span>
+    subScript <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+    elem <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+    elements <span style="color: #333333">=</span> {}
+    mult <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1</span>        <span style="color: #888888">#used to multiply numbers in ()</span>
+    i <span style="color: #333333">=</span> <span style="color: #007020">len</span>(mole)
+    moleWeight <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+    <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #007020">len</span>(mole)<span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>, <span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>, <span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>):
+        <span style="color: #008800; font-weight: bold">if</span> mole[i] <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&#39;)&#39;</span>:
+            <span style="color: #008800; font-weight: bold">if</span> subScript <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&#39;&#39;</span>: subScript <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1</span>
+            mult <span style="color: #333333">=</span> <span style="color: #007020">int</span>(subScript)
+            subScript <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+        <span style="color: #008800; font-weight: bold">elif</span> mole[i] <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&#39;(&#39;</span>:
+            mult <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1</span>
+        <span style="color: #008800; font-weight: bold">else</span>:
+            char <span style="color: #333333">=</span> <a href="{%url 'capLowNum'%}">capLowNum</a>(mole[i]) 
+            <span style="color: #008800; font-weight: bold">if</span> char <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&#39;digit&#39;</span>:
+                subScript <span style="color: #333333">=</span> mole[i] <span style="color: #333333">+</span> subScript
+            <span style="color: #008800; font-weight: bold">else</span>:
+                elem <span style="color: #333333">=</span> mole[i] <span style="color: #333333">+</span> elem
+                <span style="color: #008800; font-weight: bold">if</span> char <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&#39;up&#39;</span>: <span style="color: #888888">#elements begin with capital letters</span>
+                    <span style="color: #008800; font-weight: bold">if</span> subScript <span style="color: #333333">==</span> <span style="background-color: #fff0f0">&#39;&#39;</span>: subScript <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1</span>
+                    elements[elem] <span style="color: #333333">=</span> <span style="color: #007020">int</span>(subScript) <span style="color: #333333">*</span> sign <span style="color: #333333">*</span> mult
+                    moleWeight <span style="color: #333333">+=</span> aw[elem] <span style="color: #333333">*</span> mult <span style="color: #333333">*</span> <span style="color: #007020">int</span>(subScript)
+                    subScript <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+                    elem <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+    moleWeights[mole] <span style="color: #333333">=</span> moleWeight
+    <span style="color: #008800; font-weight: bold">return</span>(elements)
+</pre></div>
+{% endblock %}
